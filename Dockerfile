@@ -85,9 +85,5 @@ RUN chmod -R 775 storage bootstrap/cache \
 # Expose port
 EXPOSE 10000
 
-# Start Laravel with migrations
-CMD php artisan migrate --force && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan serve --host=0.0.0.0 --port=10000
+# Start Laravel with migrations (ใช้ shell form)
+CMD ["sh", "-c", "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
