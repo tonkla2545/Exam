@@ -46,6 +46,10 @@ COPY . .
 # Finalize composer
 RUN composer dump-autoload --optimize --no-dev
 
+# Set environment for Vite build
+ENV APP_URL=https://exam-gov.onrender.com
+ENV ASSET_URL=https://exam-gov.onrender.com
+
 # Build Vite assets
 RUN npm run build
 
