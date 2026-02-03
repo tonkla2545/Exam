@@ -28,7 +28,7 @@ COPY . .
 # ===============================
 # Install PHP deps
 # ===============================
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # ===============================
 # Install JS deps + build Vite
