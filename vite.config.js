@@ -8,18 +8,13 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    base: './',  // ← ใช้ relative path
     server: {
         https: false,
         host: true,
     },
-    // ← เพิ่มส่วนนี้
     build: {
         manifest: true,
         outDir: 'public/build',
-        rollupOptions: {
-            output: {
-                manualChunks: undefined,
-            },
-        },
     },
 });

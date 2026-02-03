@@ -36,7 +36,7 @@ WORKDIR /var/www
 # Copy dependency files
 COPY composer.json composer.lock package.json package-lock.json ./
 
-# Install all dependencies
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
 RUN npm ci
 
@@ -46,12 +46,15 @@ COPY . .
 # Finalize composer
 RUN composer dump-autoload --optimize --no-dev
 
-# Set environment for Vite build
-ENV APP_URL=https://exam-gov.onrender.com
-ENV ASSET_URL=https://exam-gov.onrender.com
+# Set environment for production build
+ENV NODE_ENV=production
+ENV APP_ENV=production
 
 # Build Vite assets
 RUN npm run build
+
+# Verify build
+RUN ls -la public/build/
 
 # ===============================
 # Runtime Stage
@@ -83,12 +86,12 @@ COPY --from=builder /var/www /var/www
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Remove node_modules and build artifacts
-RUN rm -rf node_modules package*.json vite.config.js
+# Remove node_modules only
+RUN rm -rf node_modules package*.json
 
 # Permissions
-RUN chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache public/build \
+    && chown -R www-data:www-data storage bootstrap/cache public/build
 
 # Expose port
 EXPOSE 10000
