@@ -72,10 +72,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www
 
-# Copy application from builder (ไม่รวม node_modules)
+# Copy application from builder
 COPY --from=builder /var/www /var/www
 
-# Remove node_modules and other build artifacts
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Remove node_modules and build artifacts
 RUN rm -rf node_modules package*.json vite.config.js
 
 # Permissions
@@ -85,5 +89,5 @@ RUN chmod -R 775 storage bootstrap/cache \
 # Expose port
 EXPOSE 10000
 
-# Start Laravel with migrations (ใช้ shell form)
-CMD ["sh", "-c", "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
+# Start application
+CMD ["/start.sh"]
