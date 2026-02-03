@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js (for Vite)
+# Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
@@ -33,28 +33,26 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy dependency files
-COPY composer.json composer.lock package.json package-lock.json ./
+# Copy package files
+COPY package*.json ./
+RUN npm install
 
-# Install dependencies
+# Copy composer files
+COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
-RUN npm ci
 
-# Copy application files
+# Copy ALL application files
 COPY . .
 
-# Finalize composer
+# Dump autoload
 RUN composer dump-autoload --optimize --no-dev
 
-# Set environment for production build
-ENV NODE_ENV=production
-ENV APP_ENV=production
-
-# Build Vite assets
-RUN npm run build
-
-# Verify build
-RUN ls -la public/build/
+# Build assets and show output
+RUN npm run build && \
+    echo "=== BUILD COMPLETE ===" && \
+    ls -lah public/ && \
+    ls -lah public/build/ && \
+    cat public/build/manifest.json
 
 # ===============================
 # Runtime Stage
@@ -79,22 +77,26 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www
 
-# Copy application from builder
+# Copy EVERYTHING from builder
 COPY --from=builder /var/www /var/www
+
+# Verify files exist
+RUN echo "=== CHECKING FILES ===" && \
+    ls -lah /var/www/public/build/ && \
+    test -f /var/www/public/build/manifest.json && \
+    echo "✓ Manifest exists!"
 
 # Copy startup script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Remove node_modules only
-RUN rm -rf node_modules package*.json
+# Clean up
+RUN rm -rf node_modules
 
 # Permissions
-RUN chmod -R 775 storage bootstrap/cache public/build \
-    && chown -R www-data:www-data storage bootstrap/cache public/build
+RUN chmod -R 775 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port
 EXPOSE 10000
 
-# Start application
 CMD ["/start.sh"]

@@ -8,13 +8,4 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    base: './',  // ← ใช้ relative path
-    server: {
-        https: false,
-        host: true,
-    },
-    build: {
-        manifest: true,
-        outDir: 'public/build',
-    },
 });
