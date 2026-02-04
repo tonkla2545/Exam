@@ -32,7 +32,7 @@
     @endif
 
 </head>
-<body class="bg-linear-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
     
     <!-- Navigation -->
     <nav class="bg-white/90 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-indigo-100">
