@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name') }}</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
     
-    {{-- Manual CSS Link for Production --}}
-    @if(file_exists(public_path('build/manifest.json')))
+    @if(app()->environment('production'))
         @php
-            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
-            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+            $manifest = public_path('build/.vite/manifest.json');
+            if (!file_exists($manifest)) {
+                $manifest = public_path('build/manifest.json');
+            }
+            
+            if (file_exists($manifest)) {
+                $manifestData = json_decode(file_get_contents($manifest), true);
+                $cssFile = $manifestData['resources/css/app.css']['file'] ?? null;
+                $jsFile = $manifestData['resources/js/app.js']['file'] ?? null;
+            }
         @endphp
         
-        @if($cssFile)
-            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+        @if(isset($cssFile))
+            <link rel="stylesheet" href="https://exam-gov.onrender.com/build/{{ $cssFile }}">
         @endif
+    @else
+        @vite(['resources/css/app.css'])
     @endif
 </head>
 <body class="bg-linear-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
