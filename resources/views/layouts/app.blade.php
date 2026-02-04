@@ -6,25 +6,31 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
     
     @if(app()->environment('production'))
-        @php
-            $manifest = public_path('build/.vite/manifest.json');
-            if (!file_exists($manifest)) {
-                $manifest = public_path('build/manifest.json');
-            }
-            
-            if (file_exists($manifest)) {
-                $manifestData = json_decode(file_get_contents($manifest), true);
-                $cssFile = $manifestData['resources/css/app.css']['file'] ?? null;
-                $jsFile = $manifestData['resources/js/app.js']['file'] ?? null;
-            }
-        @endphp
-        
-        @if(isset($cssFile))
-            <link rel="stylesheet" href="https://exam-gov.onrender.com/build/{{ $cssFile }}">
+    @php
+        $manifestPath = public_path('build/manifest.json');
+        $manifest = file_exists($manifestPath)
+            ? json_decode(file_get_contents($manifestPath), true)
+            : [];
+
+        $entry = $manifest['resources/js/app.js'] ?? null;
+    @endphp
+
+    @if($entry)
+        {{-- โหลด CSS --}}
+        @if(!empty($entry['css']))
+            @foreach($entry['css'] as $css)
+                <link rel="stylesheet" href="{{ asset('build/' . $css) }}">
+            @endforeach
         @endif
-    @else
-        @vite(['resources/css/app.css'])
+
+        {{-- โหลด JS --}}
+        <script type="module" src="{{ asset('build/' . $entry['file']) }}"></script>
     @endif
+
+    @else
+        @vite(['resources/css/app.css','resources/js/app.js'])
+    @endif
+
 </head>
 <body class="bg-linear-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
     
