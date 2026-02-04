@@ -1,30 +1,22 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Exam System') }}</title>
-    @production
-    @php
-        $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-        $entry = $manifest['resources/js/app.js'] ?? null;
-    @endphp
-
-    @if($entry)
-        {{-- โหลด CSS --}}
-        @if(!empty($entry['css']))
-            @foreach($entry['css'] as $css)
-                <link rel="stylesheet" href="{{ asset('build/' . $css) }}">
-            @endforeach
+    <title>{{ config('app.name') }}</title>
+    
+    {{-- Manual CSS Link for Production --}}
+    @if(file_exists(public_path('build/manifest.json')))
+        @php
+            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+        @endphp
+        
+        @if($cssFile)
+            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
         @endif
-
-        {{-- โหลด JS --}}
-        <script type="module" src="{{ asset('build/' . $entry['file']) }}"></script>
     @endif
-    @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endproduction
-
 </head>
 <body class="bg-linear-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
     
